@@ -24,10 +24,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.forage.BaseApplication
 import com.example.forage.R
 import com.example.forage.databinding.FragmentAddForageableBinding
 import com.example.forage.model.Forageable
 import com.example.forage.ui.viewmodel.ForageableViewModel
+import com.example.forage.ui.viewmodel.ForageableViewModelFactory
 
 
 /**
@@ -49,7 +51,11 @@ class AddForageableFragment : Fragment() {
     // TODO: Refactor the creation of the view model to take an instance of
     //  ForageableViewModelFactory. The factory should take an instance of the Database retrieved
     //  from BaseApplication
-    private val viewModel: ForageableViewModel by activityViewModels()
+    private val viewModel: ForageableViewModel by activityViewModels {
+        ForageableViewModelFactory(
+            (activity?.application as BaseApplication).database.ForageableDao()
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,7 +71,10 @@ class AddForageableFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val id = navigationArgs.id
         if (id > 0) {
-
+            viewModel.retrieveForegeable(id).observe(this.viewLifecycleOwner) { selectedForegeble ->
+                forageable = selectedForegeble
+                bindForageable(forageable)
+            }
             // TODO: Observe a Forageable that is retrieved by id, set the forageable variable,
             //  and call the bindForageable method
 
@@ -117,7 +126,7 @@ class AddForageableFragment : Fragment() {
     }
 
     private fun bindForageable(forageable: Forageable) {
-        binding.apply{
+        binding.apply {
             nameInput.setText(forageable.name, TextView.BufferType.SPANNABLE)
             locationAddressInput.setText(forageable.address, TextView.BufferType.SPANNABLE)
             inSeasonCheckbox.isChecked = forageable.inSeason
