@@ -32,6 +32,7 @@ abstract class ForageDatabase : RoomDatabase() {
     abstract fun ForageableDao(): ForageableDao
 
     companion object {
+        @Volatile
         private var INSTANCE: ForageDatabase? = null
         fun getDataBase(context: Context): ForageDatabase {
             return INSTANCE ?: synchronized(this) {
